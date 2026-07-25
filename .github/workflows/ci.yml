@@ -13,6 +13,12 @@ jobs:
   formula:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: ruby -c Formula/logister.rb
       - run: brew style Formula/logister.rb
+      - name: Verify package checksum
+        run: |
+          url="$(ruby -ne 'puts $1 if /^\s*url\s+"([^"]+)"/' Formula/logister.rb)"
+          sha256="$(ruby -ne 'puts $1 if /^\s*sha256\s+"([a-f0-9]+)"/' Formula/logister.rb)"
+          curl --fail --silent --show-error --location "$url" --output package.tgz
+          echo "$sha256  package.tgz" | shasum -a 256 --check
