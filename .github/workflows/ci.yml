@@ -26,8 +26,9 @@ jobs:
           echo "$sha256  package.tgz" | shasum -a 256 --check
       - name: Install and test formula
         run: |
-          brew install --formula ./Formula/logister.rb
-          brew test logister
+          brew tap taimoorq/logister "$GITHUB_WORKSPACE"
+          brew install --formula taimoorq/logister/logister
+          brew test taimoorq/logister/logister
           expected="$(ruby -ne 'puts $1 if %r{logister-cli-([0-9][^/]*)\.tgz}' Formula/logister.rb)"
           actual="$(logister version | awk '/^version[[:space:]]/ {print $2}')"
           test "$actual" = "$expected"
