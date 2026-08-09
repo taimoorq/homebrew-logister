@@ -14,6 +14,8 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check public repository safety
+        run: bash scripts/publication-safety-check.sh
       - run: ruby -c Formula/logister.rb
       - run: brew style Formula/logister.rb
       - name: Verify package checksum
@@ -22,3 +24,11 @@ jobs:
           sha256="$(ruby -ne 'puts $1 if /^\s*sha256\s+"([a-f0-9]+)"/' Formula/logister.rb)"
           curl --fail --silent --show-error --location "$url" --output package.tgz
           echo "$sha256  package.tgz" | shasum -a 256 --check
+      - name: Install and test formula
+        run: |
+          brew tap taimoorq/logister "$GITHUB_WORKSPACE"
+          brew install --formula taimoorq/logister/logister
+          brew test taimoorq/logister/logister
+          expected="$(ruby -ne 'puts $1 if %r{logister-cli-([0-9][^/]*)\.tgz}' Formula/logister.rb)"
+          actual="$(logister version | awk '/^version[[:space:]]/ {print $2}')"
+          test "$actual" = "$expected"
