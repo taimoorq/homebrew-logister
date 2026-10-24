@@ -1,8 +1,8 @@
 class Logister < Formula
   desc "Command-line access to Logister project telemetry for humans and AI tools"
   homepage "https://github.com/taimoorq/logister-cli"
-  url "https://registry.npmjs.org/logister-cli/-/logister-cli-1.1.0.tgz"
-  sha256 "abadbe4fc4bc60b911ae71665b889c0f4742a47cb62d00a382b9413257d88f56"
+  url "https://registry.npmjs.org/logister-cli/-/logister-cli-1.3.0.tgz"
+  sha256 "550d9f9eb84d890076e243a3c46c77a7008293cc0dd21d65fae5089828f1f56d"
   license "MIT"
 
   depends_on "node"
