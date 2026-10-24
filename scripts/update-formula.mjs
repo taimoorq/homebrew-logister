@@ -5,7 +5,18 @@ import { dirname, resolve } from "node:path";
 const args = parseArgs(process.argv.slice(2));
 const version = required(args.version, "--version");
 const sha256 = required(args.sha256, "--sha256");
-const url = args.url || `https://registry.npmjs.org/logister-cli/-/logister-cli-${version}.tgz`;
+const canonicalUrl = `https://registry.npmjs.org/logister-cli/-/logister-cli-${version}.tgz`;
+const url = args.url || canonicalUrl;
+
+if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$/.test(version)) {
+  fail(`Invalid --version ${JSON.stringify(version)}: expected a semver version such as 1.2.3`);
+}
+if (!/^[a-f0-9]{64}$/.test(sha256)) {
+  fail(`Invalid --sha256 ${JSON.stringify(sha256)}: expected 64 lowercase hex characters`);
+}
+if (url !== canonicalUrl) {
+  fail(`Invalid --url ${JSON.stringify(url)}: expected the canonical npm tarball ${canonicalUrl}`);
+}
 const output = resolve(args.output || "Formula/logister.rb");
 
 const formula = `class Logister < Formula
@@ -46,9 +57,11 @@ function parseArgs(argv) {
 }
 
 function required(value, name) {
-  if (!value) {
-    process.stderr.write(`Missing ${name}\n`);
-    process.exit(2);
-  }
+  if (!value) fail(`Missing ${name}`);
   return value;
+}
+
+function fail(message) {
+  process.stderr.write(`${message}\n`);
+  process.exit(2);
 }
